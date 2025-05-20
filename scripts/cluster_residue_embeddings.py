@@ -122,69 +122,45 @@ def main():
 
     GET_FN = hk.transform(get_embeddings)
 
-    topdir = "/home/delalamo//sabdab_structures/parsed/aho/camelid_H/"
 
     aho_fw_residues = list(range(1, 25)) + list(range(41, 58)) + list(range(78, 109)) + list(range(138, 150))
     print(aho_fw_residues)
 
-    aho_dicts = {x: np.full((0, 64), np.nan) for x in aho_fw_residues}
+    subdirs = ["human_H", "human_L", "mouse_H", "mouse_L"]
+    for subdir in subdirs:
 
-    for file in os.listdir(topdir):
-        file = os.path.join(topdir, file)
-        if not file.endswith(".pdb"):
-            continue
-        
-        print(file)
-        X, mask, chain, res = input_.get_inputs_mpnn(file, chain = 'H')
-        embeddings = GET_FN.apply(params, key, X, mask, res, chain)
-        res_map = get_res_idx(file, 'H')
-        
-        print(embeddings.shape)
-        print(len(res_map))
+        topdir = f"/home/delalamo//sabdab_structures/parsed/aho/{subdir}/"
 
-        if len(res_map) != embeddings.shape[1]:
-            print(f"Error: {file} has {len(res_map)} residues but {embeddings.shape[1]} embeddings")
-            continue
+        aho_dicts = {x: np.full((0, 64), np.nan) for x in aho_fw_residues}
 
-        for i, res in res_map.items():
-            if res in aho_fw_residues:
-                new_arr = embeddings[0, i, :].reshape(1, -1)
-                aho_dicts[res] = np.concatenate((aho_dicts[res], new_arr), axis=0)
-        print(res_map)
-        print({k: v.shape for k, v in aho_dicts.items()})
-    for k, v in aho_dicts.items():
-        np.save(f"npy_files/camelid_H/aho_res_{k}.npy", v)
+        print(topdir, len(os.listdir(topdir)))
+
+        for file in os.listdir(topdir):
+            file = os.path.join(topdir, file)
+            if not file.endswith(".pdb"):
+                continue
+            
+            print(file)
+            X, mask, chain, res = input_.get_inputs_mpnn(file, chain = 'H')
+            embeddings = GET_FN.apply(params, key, X, mask, res, chain)
+            res_map = get_res_idx(file, 'H')
+            
+            print(embeddings.shape)
+            print(len(res_map))
+
+            if len(res_map) != embeddings.shape[1]:
+                print(f"Error: {file} has {len(res_map)} residues but {embeddings.shape[1]} embeddings")
+                continue
+
+            for i, res in res_map.items():
+                if res in aho_fw_residues:
+                    new_arr = embeddings[0, i, :].reshape(1, -1)
+                    aho_dicts[res] = np.concatenate((aho_dicts[res], new_arr), axis=0)
+
+        for k, v in aho_dicts.items():
+            np.save(f"npy_files/{subdir}/aho_res_{k}.npy", v)
     sys.exit()
     # then need to do this for all files, calculate the medoid, and save the results in some kind of format
-
-    pdb1 = "/home/delalamo//sabdab_structures/parsed/aho/camelid_H/1bzq_K_H_0001.pdb"
-    pdb2 = "/home/delalamo//sabdab_structures/parsed/aho/camelid_H/9ljj_N_H_0001.pdb"
-    X2,mask2,chain2,res2 = input_.get_inputs_mpnn(pdb2, chain = 'H')
-    X1,mask1,chain1,res1 = input_.get_inputs_mpnn(pdb1, chain = 'H')
-
-    x1 = X1,mask1,chain1,res1
-    x2 = X2,mask2,chain2,res2
-    lens = jnp.array([X1.shape[1],X2.shape[1]])[None,:]
-
-    soft_aln,sim_matrix,score = MODEL_ETE.apply(params,key, x1,x2,lens,10**-4)
-
-    mask__1 = np.ones((1,X1.shape[1],X1.shape[1]))
-    mask__2 = np.ones((1,X2.shape[1],X2.shape[1]))
-
-    print(lddt.get_LDDTloss(X1[:,:,1],X2[:,:,1],soft_aln,mask__1,mask__2,10**-4))
-    print(lddt.get_LDDTloss(X2[:,:,1],X1[:,:,1],soft_aln.transpose(0,2,1),mask__2,mask__1,10**-4))
-
-    print(soft_aln.shape)
-    idxs = np.argwhere(soft_aln[0] > 0.5)
-
-    res_idx_A = get_res_idx(pdb1, 'H')
-    res_idx_B = get_res_idx(pdb2, 'H')
-
-    for i in range(idxs.shape[0]):
-        res_A = res_idx_A[idxs[i,0]]
-        res_B = res_idx_B[idxs[i,1]]
-        print(f"Residue {res_A} in PDB1 matches with residue {res_B} in PDB2 with score {soft_aln[0][idxs[i,0]][idxs[i,1]]}")
-
 
 
 if __name__ == "__main__":
