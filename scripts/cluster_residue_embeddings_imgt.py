@@ -172,11 +172,11 @@ def main():
             if idx % 100 == 0:
                 os.makedirs(f"npy_files_imgt/{subdir}", exist_ok=True)
                 for k, v in aho_dicts.items():
-                    np.save(f"npy_files_imgt/{subdir}/aho_res_{k}.npy", v)
+                    np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
                 with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
                     json.dump(filename_dicts, f)
         for k, v in aho_dicts.items():
-            np.save(f"npy_files_imgt/{subdir}/aho_res_{k}.npy", v)
+            np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
         with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
             json.dump(filename_dicts, f)
         
