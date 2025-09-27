@@ -175,3 +175,4 @@ cython_debug/
 .pypirc
 
 npy_files/
+npy_files_imgt/

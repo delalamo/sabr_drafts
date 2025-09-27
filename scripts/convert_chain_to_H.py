@@ -68,12 +68,14 @@ if __name__ == "__main__":
     
     
     input_dirs = [
-        "/home/delalamo/sabdab_structures/parsed/pdb_segments/human_heavy",
-        "/home/delalamo/sabdab_structures/parsed/pdb_segments/human_light",
-        "/home/delalamo/sabdab_structures/parsed/pdb_segments/mouse_heavy",
-        "/home/delalamo/sabdab_structures/parsed/pdb_segments/mouse_light"
+        "/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/camelid_heavy",
+        "/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/human_heavy",
+        "/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/human_light",
+        "/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/mouse_heavy",
+        "/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/mouse_light"
     ]
     output_dirs = [
+        "/home/delalamo/sabdab_structures/parsed/fixed_chains/camelid_H",
         "/home/delalamo/sabdab_structures/parsed/fixed_chains/human_H",
         "/home/delalamo/sabdab_structures/parsed/fixed_chains/human_L",
         "/home/delalamo/sabdab_structures/parsed/fixed_chains/mouse_H",

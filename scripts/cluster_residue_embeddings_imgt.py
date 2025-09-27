@@ -120,8 +120,6 @@ def main():
 
     subdirs = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
     
-    # with multiprocessing.Pool(processes=len(subdirs)) as pool:
-    #     pool.map(run_subdir_embeddings, subdirs)
     key = jax.random.PRNGKey(0)
     params_path = "/home/delalamo//SoftAlign/models/CONT_SW_05_T_3_1"
     params= pickle.load(open(params_path,"rb"))
@@ -129,7 +127,7 @@ def main():
 
     GET_FN = hk.transform(get_embeddings)
 
-    aho_fw_residues = list(range(1, 150))
+    aho_fw_residues = list(range(1, 129))
     for subdir in subdirs:
         topdir = f"/home/delalamo//sabdab_structures/parsed/fixed_chains/{subdir}/"
         aho_dicts = {}
@@ -143,9 +141,12 @@ def main():
                 continue
             
             print(file)
-            X, mask, chain, res = input_.get_inputs_mpnn(file, chain = subdir[-1].upper())
-            embeddings = GET_FN.apply(params, key, X, mask, res, chain)
-            res_map = get_res_idx(file, subdir[-1].upper())
+            try:
+                X, mask, chain, res = input_.get_inputs_mpnn(file, chain = subdir[-1].upper())
+                embeddings = GET_FN.apply(params, key, X, mask, res, chain)
+                res_map = get_res_idx(file, subdir[-1].upper())
+            except:
+                continue
             
             # I needed to modify softalign by commenting out line 47 to allow isnertion codes 
 
@@ -169,13 +170,14 @@ def main():
 
                     aho_dicts[res] = np.concatenate((aho_dicts[res], new_arr), axis=0)
             if idx % 100 == 0:
+                os.makedirs(f"npy_files_imgt/{subdir}", exist_ok=True)
                 for k, v in aho_dicts.items():
-                    np.save(f"npy_files/{subdir}/aho_res_{k}.npy", v)
-                with open(f"npy_files/{subdir}/filename_dicts.json", "w") as f:
+                    np.save(f"npy_files_imgt/{subdir}/aho_res_{k}.npy", v)
+                with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
                     json.dump(filename_dicts, f)
         for k, v in aho_dicts.items():
-            np.save(f"npy_files/{subdir}/aho_res_{k}.npy", v)
-        with open(f"npy_files/{subdir}/filename_dicts.json", "w") as f:
+            np.save(f"npy_files_imgt/{subdir}/aho_res_{k}.npy", v)
+        with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
             json.dump(filename_dicts, f)
         
 
