@@ -89,15 +89,14 @@ def sort_arrays(species_arrays, include_cdrs=False, include_insertions=False):
     return output
 
 def calc_devs(soft_aln, targ_idxs, ref_idxs):
-    n_devs = 0
+    devs = []
     coords = np.argwhere(np.array(soft_aln[0]) == 1)
-    print("Coordinates of all ones in soft_aln:", coords)
     for i, j in coords:
-        res_target = targ_idxs[i]
-        res_ref = ref_idxs[j]
+        res_target = int(targ_idxs[i].split(".")[-1])
+        res_ref = int(ref_idxs[j])
         if res_target != res_ref:
-            n_devs += 1
-    return n_devs
+            devs.append((res_target, res_ref))
+    return devs
 
 def main():
     key = jax.random.PRNGKey(0)
@@ -124,7 +123,6 @@ def main():
     pdb1 = "/home/delalamo/sabdab_structures/parsed/fixed_chains/camelid_H/1bzq_K_H.pdb"
     X1,mask1,chain1,res1, ids = input_.get_inputs_mpnn(pdb1, chain = 'H')
     x1 = X1,mask1,chain1,res1
-    print(ids)
     
     for species, (array, res_idxs) in species_arrays.items():
         
@@ -132,8 +130,8 @@ def main():
         lens = jnp.array([X1.shape[1], to_run.shape[1]])[None,:]
 
         soft_aln, sim_matrix, score = MODEL_ETE.apply(params,key, x1, to_run, lens, 10**-4)
-        n_devs = calc_devs(soft_aln, ids, res_idxs)
-        print(species, score, n_devs)
+        devs = calc_devs(soft_aln, ids, res_idxs)
+        print(species, score, len(devs), " ".join(f"{a}/{b}" for a,b in devs))
         continue
 
         mask__1 = np.ones((1,X1.shape[1],X1.shape[1]))

@@ -7,6 +7,12 @@ git clone --recurse-submodules https://github.com/delalamo/sabr.git
 
 TODO:
 - [ ] Get a protoype script up and running for camelid, human, and mouse
+    * I need to be systematic about this and align clustered, filtered arrays to each LOO model in a representative way, testing various conditions
+    * Conditions to test:
+        * Keeping all possible positions
+        * Omitting positions without an AHo equivalent
+        * Omitting all insert positions
+        * Omitting CDRs
 - [ ] Verify that scores make sense, and figure out cutoffs for poor alignments (like non-Igs)
 - [ ] Identify outliers and remove (MMSeqs2 clusters)
 - [ ] Make RFDiffusion mAbs and VHHs with partial diffusion and see if numbering is recovered
