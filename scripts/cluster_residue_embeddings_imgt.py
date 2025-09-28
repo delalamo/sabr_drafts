@@ -118,7 +118,8 @@ def get_match_locs(arr):
 
 def main():
 
-    subdirs = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
+    # subdirs = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
+    subdirs = ["human_H", "human_L", "mouse_H", "mouse_L"]
     
     key = jax.random.PRNGKey(0)
     params_path = "/home/delalamo//SoftAlign/models/CONT_SW_05_T_3_1"
