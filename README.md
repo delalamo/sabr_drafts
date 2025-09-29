@@ -13,6 +13,7 @@ TODO:
         * Omitting positions without an AHo equivalent
         * Omitting all insert positions
         * Omitting CDRs
+- [ ] Implement and test radial basis functions as substitutes for dot products, to permit introduction of a sigma parameter
 - [ ] Verify that scores make sense, and figure out cutoffs for poor alignments (like non-Igs)
 - [ ] Identify outliers and remove (MMSeqs2 clusters)
 - [ ] Make RFDiffusion mAbs and VHHs with partial diffusion and see if numbering is recovered
