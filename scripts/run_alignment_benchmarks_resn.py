@@ -142,9 +142,40 @@ def sort_arrays(array_dict, species, residue_selection):
         idxs.append(idx)
     return out_array, idxs
 
+def read_cluster_definitions(species):
+    clu_name = species.replace("_H", "_heavy").replace("_L", "_light")
+    clufile = f"/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/{clu_name}.tsv"
+    clusters = {}
+    with open(clufile) as f:
+        for line in f:
+            if line.startswith("#") or len(line.split()) < 2:
+                continue
+            cluster_name, pdb_id = line.strip().split("\s+")
+            if cluster_name not in clusters:
+                clusters[cluster_name] = []
+            clusters[cluster_name].append(pdb_id)
+    return clusters
+
+def fetch_highest_res_reps(species_clusters, df):
+    reps = []
+    for cluster, members in species_clusters.items():
+        members4 = [m.lower()[:4] for m in members]
+        cluster_df = df[df['pdb'].isin(members4)]
+        if cluster_df.empty:
+            print(f"No entries found in summary for cluster {cluster} of size {len(members)}, skipping...")
+            continue
+        highest_res_pdb = cluster_df.loc[cluster_df['resolution'].idxmin()]["pdb_code"]
+        for m in members:
+            if m.lower().startswith(highest_res_pdb.lower()):
+                reps.append(m)
+                break
+    return reps
+
 def main():
     key = jax.random.PRNGKey(0)
     
+    all_species = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
+
     params_path = "/home/delalamo/SoftAlign/models/CONT_SW_05_T_3_1"
     params= pickle.load(open(params_path,"rb"))
     MODEL_ETE = hk.transform(model_end_to_end)
@@ -153,6 +184,15 @@ def main():
     species_arrays = {}
 
     cdr_residues = list(range(26, 39)) + list(range(56, 66)) + list(range(105, 118))
+
+    # need to load tsv and cluster definitions, fetch highest-resolution one
+    # reps = get_reps(species)
+    df = pd.read_csv("/home/delalamo/sabdab_structures/sabdab_summary_all.tsv", sep='\t', engine='python', on_bad_lines='warn')
+
+    cluster_assignments = {read_cluster_definitions(s) for s in all_species}
+    rep_dict = {s: fetch_highest_res_reps(cluster_assignments[s], df) for s in all_species}
+        
+
 
     outfile = "/home/delalamo/sabr/strategies.txt"
     if os.path.exists(outfile):
@@ -165,9 +205,9 @@ def main():
         for strategy in STRATEGIES.keys():
             n_total_devs = 0
             n_cases = 0
-            for species in ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]:
+            for species in all_species:
                 if species not in species_arrays:
-                    reps = get_reps(species)
+                    
                     rep_embed_dict = load_embeddings(species, reps)
                     print(f"Species {species} has {len(reps)} cluster representatives")
                     species_arrays[species] = rep_embed_dict
@@ -205,9 +245,9 @@ def main():
                         "devs": " ".join(f"{a}/{b}" for a, b in devs)
                     }])], ignore_index=True)
                     df.to_csv(outfile, index=False)
-                    if len(devs) > 0:
+                    if len(non_cdr_devs) > 0:
                         n_cases += 1
-                        n_total_devs += len(devs)
+                        n_total_devs += len(non_cdr_devs)
                         print(f"\t{strategy} {species} {rep} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs): " + " ".join(f"{a}/{b}" for a,b in devs))
                     else:
                         print(f"\t{strategy} {species} {rep} vs rest: {score} 0 deviations")
