@@ -152,7 +152,7 @@ def read_cluster_definitions(species):
         for line in f:
             if line.startswith("#") or len(line.split()) < 2:
                 continue
-            cluster_name, pdb_id = line.strip().split("\s+")
+            cluster_name, pdb_id = line.strip().split()
             if pdb_id not in recorded_entries:
                 continue
             if cluster_name not in clusters:
@@ -174,7 +174,7 @@ def fetch_highest_res_reps(species_clusters, df):
         if cluster_df_clean.empty:
             print(f"All entries for cluster {cluster} have NaN resolution, skipping...")
             continue        
-        highest_res_pdb = cluster_df_clean.loc[cluster_df_clean['resolution'].idxmin()]["pdb_code"]
+        highest_res_pdb = cluster_df_clean.loc[cluster_df_clean['resolution'].idxmin()]["pdb"]
         for m in members:
             if m.lower().startswith(highest_res_pdb.lower()):
                 reps.append(m)
@@ -199,13 +199,13 @@ def main():
     # reps = get_reps(species)
     df = pd.read_csv("/home/delalamo/sabdab_structures/sabdab_summary_all.tsv", sep='\t', engine='python', on_bad_lines='warn')
 
-    cluster_assignments = {read_cluster_definitions(s) for s in all_species}
+    cluster_assignments = {s: read_cluster_definitions(s) for s in all_species}
     rep_dict = {s: fetch_highest_res_reps(cluster_assignments[s], df) for s in all_species}
     for species in all_species:
         rep_embed_dict = load_embeddings(species, [m for v in cluster_assignments[species].values() for m in v])
         species_arrays[species] = rep_embed_dict
 
-    outfile = "/home/delalamo/sabr/strategies.txt"
+    outfile = "/home/delalamo/sabr/strategies_resn.txt"
     if os.path.exists(outfile):
         df = pd.read_csv(outfile)
     else:
@@ -220,9 +220,9 @@ def main():
                 # need to cycle through all clusters
 
                 for rep, members in cluster_assignments[species].items():
-                    other_reps = [r for r in rep_dict[species].keys() if r not in members]
+                    other_reps = [r for r in rep_dict[species] if r not in members]
                     ref_array, ref_idxs = sort_arrays({r: rep_embed_dict[r] for r in other_reps}, species, residue_selection = strategy)
-
+                    ref_array = jnp.array(ref_array[None, :])
                     for member in members:
 
                         # Check if this row already exists in df and skip if true
@@ -239,7 +239,8 @@ def main():
 
                         # setup mpnn inputs
                         target_array = jnp.array(target_array[None, :])
-                        ref_array = jnp.array(ref_array[None, :])
+                        
+                        # print(species, rep, member, target_array.shape, ref_array.shape)
                         lens = jnp.array([target_array.shape[1], ref_array.shape[1]])[None,:]
 
                         soft_aln, sim_matrix, score = MODEL_ETE.apply(params,key, target_array, ref_array, lens, 10**-4)
