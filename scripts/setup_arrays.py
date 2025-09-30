@@ -2,6 +2,7 @@ import sys
 
 sys.path.append('/home/delalamo/SoftAlign/')
 
+import json
 import os
 import pickle
 
@@ -204,76 +205,12 @@ def main():
     for species in all_species:
         rep_embed_dict = load_embeddings(species, [m for v in cluster_assignments[species].values() for m in v])
         species_arrays[species] = rep_embed_dict
-
-    outfile = "/home/delalamo/sabr/strategies_resn.txt"
-    if os.path.exists(outfile):
-        out_df = pd.read_csv(outfile)
-    else:
-        out_df = pd.DataFrame(columns=["strategy", "species", "pdb", "n_devs", "n_non_cdr_devs", "devs"])
-        out_df.to_csv(outfile, index=False)
-    try:
+        reps = [r for r in rep_dict[species]]
         for strategy in STRATEGIES.keys():
-            n_total_devs = 0
-            n_cases = 0
-            for species in all_species:
-                rep_embed_dict = species_arrays[species]
-                # need to cycle through all clusters
-
-                for rep, members in cluster_assignments[species].items():
-                    other_reps = [r for r in rep_dict[species] if r not in members]
-                    ref_array, ref_idxs = sort_arrays({r: rep_embed_dict[r] for r in other_reps}, species, residue_selection = strategy)
-                    ref_array = jnp.array(ref_array[None, :])
-                    for member in members:
-
-                        # Check if this row already exists in df and skip if true
-                        if ((out_df["strategy"] == strategy) & (out_df["species"] == species) & (out_df["pdb"] == member)).any():
-                            print(f"\tCalculations for {member} ({species}) already executed for strategy {strategy}, skipping")
-                            continue
-                        try:
-                            target_array, target_idxs = sort_arrays({member: rep_embed_dict[member]}, species, residue_selection = strategy)
-                        except KeyError:
-                            print(f"\tSkipping {rep} for {species} due to missing residues")
-                            continue
-
-                        # setup mpnn inputs
-                        target_array = jnp.array(target_array[None, :])
-                        
-                        # print(species, rep, member, target_array.shape, ref_array.shape)
-                        lens = jnp.array([target_array.shape[1], ref_array.shape[1]])[None,:]
-
-                        soft_aln, sim_matrix, score = MODEL_ETE.apply(params,key, target_array, ref_array, lens, 10**-4)
-                        devs = calc_devs(soft_aln, target_idxs , ref_idxs)
-                        non_cdr_devs = [d for d in devs if d[0] not in cdr_residues]
-                        
-                        # get resolution
-                        resolution = 0.0
-                        member_pdb = member[:4].lower()
-                        row = df[df['pdb'].str.lower() == member_pdb]
-                        if not row.empty and 'resolution' in row.columns:
-                            resolution = row.iloc[0]['resolution']
-
-                        out_df = pd.concat([out_df, pd.DataFrame([{
-                            "strategy": strategy,
-                            "species": species,
-                            "pdb": rep,
-                            "n_devs": len(devs),
-                            "n_non_cdr_devs": len(non_cdr_devs),
-                            "devs": " ".join(f"{a}/{b}" for a, b in devs)
-                        }])], ignore_index=True)
-                        out_df.to_csv(outfile, index=False)
-                        if len(non_cdr_devs) > 0:
-                            n_cases += 1
-                            n_total_devs += len(non_cdr_devs)
-                            print(f"\t{strategy} {species} {member} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs; {resolution} A): " + " ".join(f"{a}/{b}" for a,b in devs))
-                        else:
-                            print(f"\t{strategy} {species} {member} vs rest: {score} 0 deviations ({resolution} A)")
-                        out_df.to_csv(outfile, index=False)
-                #f.write(f"{strategy},{n_cases},{n_total_devs}")
-                print(f"{strategy},{n_cases},{n_total_devs}")
-    except KeyboardInterrupt:
-        out_df.to_csv(outfile, index=False)
-        print("Interrupted, exiting...")
-
+            ref_array, ref_idxs = sort_arrays({r: rep_embed_dict[r] for r in reps}, species, residue_selection = strategy)
+            np.save(f"/home/delalamo/sabr/ref_arrays/{species}_{strategy}.npy", ref_array)
+            with open(f"/home/delalamo/sabr/ref_arrays/{species}_{strategy}.json", "w") as f:
+                json.dump(ref_idxs, f)
 
 if __name__ == "__main__":
     main()
