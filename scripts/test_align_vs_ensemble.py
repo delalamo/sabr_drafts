@@ -18,9 +18,7 @@ num_layers = 3 #@param {type:"integer"}
 num_neighbors = 64 #@param {type:"integer"}
 encoding_dim = 64 #@param {type:"integer"}
 categorical = False #@param {type:"boolean"}
-nb_clusters = 100 #@param {type:"integer"}
 soft_max = False #@param {type:"boolean"}
-bs = 15
 
 def model_end_to_end(
         x1,
@@ -32,8 +30,6 @@ def model_end_to_end(
         hidden_dim = encoding_dim,
         num_encoder_layers=num_layers,
         k_neighbors=num_neighbors,
-        categorical = categorical,
-        nb_clusters = nb_clusters,
         affine = True,
         soft_max = soft_max
     ):
@@ -43,7 +39,7 @@ def model_end_to_end(
         hidden_dim,
         num_encoder_layers,
         k_neighbors,
-        affine = True,
+        affine = affine,
         soft_max = soft_max,
         dropout = 0.,
         augment_eps=0.0)

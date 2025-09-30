@@ -118,8 +118,7 @@ def get_match_locs(arr):
 
 def main():
 
-    # subdirs = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
-    subdirs = ["human_H", "human_L", "mouse_H", "mouse_L"]
+    subdirs = ["camelid_H", "human_H", "human_L", "mouse_H", "mouse_L"]
     
     key = jax.random.PRNGKey(0)
     params_path = "/home/delalamo//SoftAlign/models/CONT_SW_05_T_3_1"
@@ -137,20 +136,32 @@ def main():
         print(topdir, len(os.listdir(topdir)))
 
         for idx, file in enumerate(os.listdir(topdir)):
+            filename = file.split(".")[0]
             file = os.path.join(topdir, file)
             if not file.endswith(".pdb"):
                 continue
             
             print(file)
             try:
-                X, mask, chain, res = input_.get_inputs_mpnn(file, chain = subdir[-1].upper())
-                embeddings = GET_FN.apply(params, key, X, mask, res, chain)
                 res_map = get_res_idx(file, subdir[-1].upper())
+                all_res_found = True
+                for i, res in res_map.items():
+                    res_idx = int(res[:-1] if res[-1].isalpha() else res)
+                    npy_file = f"npy_files_imgt/{subdir}/{filename}/imgt_res_{res}.npy"
+                    if res_idx in aho_fw_residues and not os.path.exists(npy_file):
+                        all_res_found = False
+                        break
+                # I needed to modify softalign by commenting out line 47 to allow isnertion codes 
+
+                if all_res_found:
+                    print(f"All residues found for {file}, skipping...")
+                    continue
+                    
+                X, mask, chain, res, ids = input_.get_inputs_mpnn(file, chain = subdir[-1].upper())
+                embeddings = GET_FN.apply(params, key, X, mask, res, chain)
             except:
                 continue
             
-            # I needed to modify softalign by commenting out line 47 to allow isnertion codes 
-
             print(embeddings.shape)
             print(X.shape)
             print(len(res_map))
@@ -159,10 +170,12 @@ def main():
                 print(f"Error: {file} has {len(res_map)} residues but {embeddings.shape[1]} embeddings")
                 continue
 
+            os.makedirs(f"npy_files_imgt/{subdir}/{filename}/", exist_ok=True)
             for i, res in res_map.items():
                 res_idx = int(res[:-1] if res[-1].isalpha() else res)
                 if res_idx in aho_fw_residues:
                     new_arr = embeddings[0, i, :].reshape(1, -1)
+                    np.save(f"npy_files_imgt/{subdir}/{filename}/imgt_res_{res_idx}.npy", new_arr)
                     if res not in aho_dicts:
                         aho_dicts[res] = np.full((0, embeddings.shape[2]), np.nan)
                     if res not in filename_dicts:
@@ -170,16 +183,16 @@ def main():
                     filename_dicts[res].append(file)
 
                     aho_dicts[res] = np.concatenate((aho_dicts[res], new_arr), axis=0)
-            if idx % 100 == 0:
-                os.makedirs(f"npy_files_imgt/{subdir}", exist_ok=True)
-                for k, v in aho_dicts.items():
-                    np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
-                with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
-                    json.dump(filename_dicts, f)
-        for k, v in aho_dicts.items():
-            np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
-        with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
-            json.dump(filename_dicts, f)
+        #     if idx % 100 == 0:
+        #         os.makedirs(f"npy_files_imgt/{subdir}", exist_ok=True)
+        #         for k, v in aho_dicts.items():
+        #             np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
+        #         with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
+        #             json.dump(filename_dicts, f)
+        # for k, v in aho_dicts.items():
+        #     np.save(f"npy_files_imgt/{subdir}/imgt_res_{k}.npy", v)
+        # with open(f"npy_files_imgt/{subdir}/filename_dicts.json", "w") as f:
+        #     json.dump(filename_dicts, f)
         
 
 
