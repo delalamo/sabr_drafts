@@ -207,10 +207,10 @@ def main():
 
     outfile = "/home/delalamo/sabr/strategies_resn.txt"
     if os.path.exists(outfile):
-        df = pd.read_csv(outfile)
+        out_df = pd.read_csv(outfile)
     else:
-        df = pd.DataFrame(columns=["strategy", "species", "rep", "n_devs", "n_non_cdr_devs", "devs"])
-        df.to_csv(outfile, index=False)
+        out_df = pd.DataFrame(columns=["strategy", "species", "pdb", "n_devs", "n_non_cdr_devs", "devs"])
+        out_df.to_csv(outfile, index=False)
     try:
         for strategy in STRATEGIES.keys():
             n_total_devs = 0
@@ -226,11 +226,11 @@ def main():
                     for member in members:
 
                         # Check if this row already exists in df and skip if true
-                        if ((df["strategy"] == strategy) & (df["species"] == species) & (df["rep"] == member)).any():
+                        if ((out_df["strategy"] == strategy) & (out_df["species"] == species) & (out_df["pdb"] == member)).any():
                             print(f"\tCalculations for {member} ({species}) already executed for strategy {strategy}, skipping")
                             continue
                         try:
-                            target_array, target_idxs = sort_arrays({rep: rep_embed_dict[rep]}, species, residue_selection = strategy)
+                            target_array, target_idxs = sort_arrays({member: rep_embed_dict[member]}, species, residue_selection = strategy)
                         except KeyError:
                             print(f"\tSkipping {rep} for {species} due to missing residues")
                             continue
@@ -247,26 +247,33 @@ def main():
                         devs = calc_devs(soft_aln, target_idxs, ref_idxs)
                         non_cdr_devs = [d for d in devs if d[0] not in cdr_residues]
                         
-                        df = pd.concat([df, pd.DataFrame([{
+                        # get resolution
+                        resolution = 0.0
+                        member_pdb = member[:4].lower()
+                        row = df[df['pdb'].str.lower() == member_pdb]
+                        if not row.empty and 'resolution' in row.columns:
+                            resolution = row.iloc[0]['resolution']
+
+                        out_df = pd.concat([out_df, pd.DataFrame([{
                             "strategy": strategy,
                             "species": species,
-                            "rep": rep,
+                            "pdb": rep,
                             "n_devs": len(devs),
                             "n_non_cdr_devs": len(non_cdr_devs),
                             "devs": " ".join(f"{a}/{b}" for a, b in devs)
                         }])], ignore_index=True)
-                        df.to_csv(outfile, index=False)
+                        out_df.to_csv(outfile, index=False)
                         if len(non_cdr_devs) > 0:
                             n_cases += 1
                             n_total_devs += len(non_cdr_devs)
-                            print(f"\t{strategy} {species} {rep} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs): " + " ".join(f"{a}/{b}" for a,b in devs))
+                            print(f"\t{strategy} {species} {member} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs; {resolution} A): " + " ".join(f"{a}/{b}" for a,b in devs))
                         else:
-                            print(f"\t{strategy} {species} {rep} vs rest: {score} 0 deviations")
-                        df.to_csv(outfile, index=False)
+                            print(f"\t{strategy} {species} {member} vs rest: {score} 0 deviations ({resolution} A)")
+                        out_df.to_csv(outfile, index=False)
                 #f.write(f"{strategy},{n_cases},{n_total_devs}")
                 print(f"{strategy},{n_cases},{n_total_devs}")
     except KeyboardInterrupt:
-        df.to_csv(outfile, index=False)
+        out_df.to_csv(outfile, index=False)
         print("Interrupted, exiting...")
 
 
