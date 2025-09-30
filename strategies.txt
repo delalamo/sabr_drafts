@@ -920,3 +920,90 @@ ALL,human_H,6wg0_H,0,0,
 ALL,human_H,7zor_H,0,0,
 ALL,human_H,7kew_G,1,0,31/35
 ALL,human_H,7sjp_H,0,0,
+ALL,human_H,4rqq_B,0,0,
+ALL,human_H,7yr1_E,0,0,
+ALL,human_H,2xqb_H,0,0,
+ALL,human_H,8w0x_H,0,0,
+ALL,human_H,8db4_C,0,0,
+ALL,human_H,6vy5_H,0,0,
+ALL,human_H,7x9e_A,1,1,46/48
+ALL,human_H,7t75_H,0,0,
+ALL,human_H,8r1c_H,2,0,31/35 34/36
+ALL,human_H,1it9_H,0,0,
+ALL,human_H,3mnw_B,0,0,
+ALL,human_H,8ez3_H,2,0,31/35 34/36
+ALL,human_H,6dwi_F,1,0,109/113
+ALL,human_H,1ikf_H,0,0,
+ALL,human_H,8urf_H,1,0,110/112
+ALL,human_H,5cgy_C,0,0,
+ALL,human_H,7uc8_J,0,0,
+ALL,human_H,1ol0_B,4,1,36/35 37/36 38/37 39/38
+ALL,human_H,6wio_A,0,0,
+ALL,human_H,8tp5_H,0,0,
+ALL,human_H,5ocy_H,2,0,31/35 35/36
+ALL,human_H,8zr4_A,0,0,
+ALL,human_H,8f5i_X,0,0,
+ALL,human_H,8bg5_C,0,0,
+ALL,human_H,6osy_I,2,0,31/35 34/36
+ALL,human_H,6n7j_A,0,0,
+ALL,human_H,6nmv_H,1,0,108/114
+ALL,human_H,7wwl_I,0,0,
+ALL,human_H,8aon_B,0,0,
+ALL,human_H,6uye_H,0,0,
+ALL,human_H,8tl5_K,0,0,
+ALL,human_H,7rdk_B,0,0,
+ALL,human_H,4ydi_H,0,0,
+ALL,human_H,7wr9_A,0,0,
+ALL,human_H,6cdi_3,0,0,
+ALL,human_H,8dtx_H,1,0,110/112
+ALL,human_H,7mzl_H,0,0,
+ALL,human_H,4zs6_C,0,0,
+ALL,human_H,6mn7_G,0,0,
+ALL,human_H,6fxn_O,0,0,
+ALL,human_H,8dg8_H,7,7,3/2 4/3 5/4 6/5 7/6 8/7 9/8
+ALL,human_H,8t5c_H,1,0,59/62
+ALL,human_H,7kex_G,0,0,
+ALL,human_H,5ug0_D,0,0,
+ALL,human_H,4uv4_H,0,0,
+ALL,human_H,7amp_H,0,0,
+ALL,human_H,7zlk_H,0,0,
+ALL,human_H,5w1g_H,0,0,
+ALL,human_H,5otj_B,0,0,
+ALL,human_H,5alb_H,0,0,
+ALL,human_H,7swd_G,10,9,60/61 120/121 121/122 122/123 123/124 124/125 125/126 126/127 127/128 128/1
+ALL,human_H,8tkc_K,2,0,31/35 35/36
+ALL,human_H,7e72_C,0,0,
+ALL,human_H,8sja_D,0,0,
+ALL,human_H,6pdx_H,0,0,
+ALL,human_H,5d1x_B,0,0,
+ALL,human_H,3g6a_B,0,0,
+ALL,human_H,5feh_B,4,1,26/37 27/38 66/55 107/114
+ALL,human_H,7jkb_B,0,0,
+ALL,human_H,7x8t_I,0,0,
+ALL,human_H,5feh_F,0,0,
+ALL,human_H,6iuv_H,0,0,
+ALL,human_H,5w1k_D,2,0,31/35 34/36
+ALL,human_H,8r8d_H,1,0,59/61
+ALL,human_H,7cea_A,2,0,31/35 34/36
+ALL,human_H,3u0t_B,1,0,114/110
+ALL,human_H,9fww_B,8,3,59/62 62/63 63/64 64/65 65/66 66/67 67/68 68/69
+ALL,human_H,8f6o_A,0,0,
+ALL,human_H,5vzx_H,0,0,
+ALL,human_H,8g4m_J,0,0,
+ALL,human_H,6btj_A,0,0,
+ALL,human_H,4cni_A,1,0,110/112
+ALL,human_H,6nf2_H,0,0,
+ALL,human_H,7oh1_E,0,0,
+ALL,human_H,4ocr_H,0,0,
+ALL,human_H,7bm5_B,0,0,
+ALL,human_H,1iqd_B,0,0,
+ALL,human_H,8qtd_H,0,0,
+ALL,human_H,7x95_H,0,0,
+ALL,human_H,5trp_H,2,2,82/84 83/85
+ALL,human_H,5tpl_H,0,0,
+ALL,human_H,7dm1_D,0,0,
+ALL,human_H,7uov_Q,0,0,
+ALL,human_H,8dw9_H,0,0,
+ALL,human_H,8wyj_Q,3,0,59/56 62/57 63/58
+ALL,human_H,7kf9_I,0,0,
+ALL,human_H,7myt_A,0,0,

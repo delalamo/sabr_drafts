@@ -143,6 +143,8 @@ def sort_arrays(array_dict, species, residue_selection):
     return out_array, idxs
 
 def read_cluster_definitions(species):
+    recorded_entries = [x[:6] for x in os.listdir(f"/home/delalamo/sabr/npy_files_imgt/{species}/")]
+    
     clu_name = species.replace("_H", "_heavy").replace("_L", "_light")
     clufile = f"/home/delalamo/sabdab_structures/parsed/pdb_segments_complete/{clu_name}.tsv"
     clusters = {}
@@ -151,6 +153,8 @@ def read_cluster_definitions(species):
             if line.startswith("#") or len(line.split()) < 2:
                 continue
             cluster_name, pdb_id = line.strip().split("\s+")
+            if pdb_id not in recorded_entries:
+                continue
             if cluster_name not in clusters:
                 clusters[cluster_name] = []
             clusters[cluster_name].append(pdb_id)
@@ -158,13 +162,19 @@ def read_cluster_definitions(species):
 
 def fetch_highest_res_reps(species_clusters, df):
     reps = []
+    
     for cluster, members in species_clusters.items():
         members4 = [m.lower()[:4] for m in members]
         cluster_df = df[df['pdb'].isin(members4)]
         if cluster_df.empty:
             print(f"No entries found in summary for cluster {cluster} of size {len(members)}, skipping...")
             continue
-        highest_res_pdb = cluster_df.loc[cluster_df['resolution'].idxmin()]["pdb_code"]
+        # Drop rows with NaN in 'resolution' before finding the minimum
+        cluster_df_clean = cluster_df.dropna(subset=['resolution'])
+        if cluster_df_clean.empty:
+            print(f"All entries for cluster {cluster} have NaN resolution, skipping...")
+            continue        
+        highest_res_pdb = cluster_df_clean.loc[cluster_df_clean['resolution'].idxmin()]["pdb_code"]
         for m in members:
             if m.lower().startswith(highest_res_pdb.lower()):
                 reps.append(m)
@@ -191,8 +201,9 @@ def main():
 
     cluster_assignments = {read_cluster_definitions(s) for s in all_species}
     rep_dict = {s: fetch_highest_res_reps(cluster_assignments[s], df) for s in all_species}
-        
-
+    for species in all_species:
+        rep_embed_dict = load_embeddings(species, [m for v in cluster_assignments[species].values() for m in v])
+        species_arrays[species] = rep_embed_dict
 
     outfile = "/home/delalamo/sabr/strategies.txt"
     if os.path.exists(outfile):
@@ -201,57 +212,56 @@ def main():
         df = pd.DataFrame(columns=["strategy", "species", "rep", "n_devs", "n_non_cdr_devs", "devs"])
         df.to_csv(outfile, index=False)
     try:
-        
         for strategy in STRATEGIES.keys():
             n_total_devs = 0
             n_cases = 0
             for species in all_species:
-                if species not in species_arrays:
-                    
-                    rep_embed_dict = load_embeddings(species, reps)
-                    print(f"Species {species} has {len(reps)} cluster representatives")
-                    species_arrays[species] = rep_embed_dict
-                else:
-                    rep_embed_dict = species_arrays[species]
-                for rep in reps:
-                    # Check if this row already exists in df and skip if true
-                    if ((df["strategy"] == strategy) & (df["species"] == species) & (df["rep"] == rep)).any():
-                        print(f"\tCalculations for {rep} ({species}) already executed for strategy {strategy}, skipping")
-                        continue
-                    try:
-                        target_array, target_idxs = sort_arrays({rep: rep_embed_dict[rep]}, species, residue_selection = strategy)
-                    except KeyError:
-                        print(f"\tSkipping {rep} for {species} due to missing residues")
-                        continue
-                    ref_array, ref_idxs = sort_arrays({k: v for k, v in rep_embed_dict.items() if k != rep}, species, residue_selection = strategy)
-                    # print(f"Target array shape", target_array.shape)
-                    # print(f"Reference array shape", ref_array.shape)
+                rep_embed_dict = species_arrays[species]
+                # need to cycle through all clusters
 
-                    # setup mpnn inputs
-                    target_array = jnp.array(target_array[None, :])
-                    ref_array = jnp.array(ref_array[None, :])
-                    lens = jnp.array([target_array.shape[1], ref_array.shape[1]])[None,:]
+                for rep, members in cluster_assignments[species].items():
+                    other_reps = [r for r in rep_dict[species].keys() if r not in members]
+                    ref_array, ref_idxs = sort_arrays({r: rep_embed_dict[r] for r in other_reps}, species, residue_selection = strategy)
 
-                    soft_aln, sim_matrix, score = MODEL_ETE.apply(params,key, target_array, ref_array, lens, 10**-4)
-                    devs = calc_devs(soft_aln, target_idxs, ref_idxs)
-                    non_cdr_devs = [d for d in devs if d[0] not in cdr_residues]
-                    
-                    df = pd.concat([df, pd.DataFrame([{
-                        "strategy": strategy,
-                        "species": species,
-                        "rep": rep,
-                        "n_devs": len(devs),
-                        "n_non_cdr_devs": len(non_cdr_devs),
-                        "devs": " ".join(f"{a}/{b}" for a, b in devs)
-                    }])], ignore_index=True)
-                    df.to_csv(outfile, index=False)
-                    if len(non_cdr_devs) > 0:
-                        n_cases += 1
-                        n_total_devs += len(non_cdr_devs)
-                        print(f"\t{strategy} {species} {rep} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs): " + " ".join(f"{a}/{b}" for a,b in devs))
-                    else:
-                        print(f"\t{strategy} {species} {rep} vs rest: {score} 0 deviations")
-                    df.to_csv(outfile, index=False)
+                    for member in members:
+
+                        # Check if this row already exists in df and skip if true
+                        if ((df["strategy"] == strategy) & (df["species"] == species) & (df["rep"] == member)).any():
+                            print(f"\tCalculations for {member} ({species}) already executed for strategy {strategy}, skipping")
+                            continue
+                        try:
+                            target_array, target_idxs = sort_arrays({rep: rep_embed_dict[rep]}, species, residue_selection = strategy)
+                        except KeyError:
+                            print(f"\tSkipping {rep} for {species} due to missing residues")
+                            continue
+                        # print(f"Target array shape", target_array.shape)
+                        # print(f"Reference array shape", ref_array.shape)
+
+                        # setup mpnn inputs
+                        target_array = jnp.array(target_array[None, :])
+                        ref_array = jnp.array(ref_array[None, :])
+                        lens = jnp.array([target_array.shape[1], ref_array.shape[1]])[None,:]
+
+                        soft_aln, sim_matrix, score = MODEL_ETE.apply(params,key, target_array, ref_array, lens, 10**-4)
+                        devs = calc_devs(soft_aln, target_idxs, ref_idxs)
+                        non_cdr_devs = [d for d in devs if d[0] not in cdr_residues]
+                        
+                        df = pd.concat([df, pd.DataFrame([{
+                            "strategy": strategy,
+                            "species": species,
+                            "rep": rep,
+                            "n_devs": len(devs),
+                            "n_non_cdr_devs": len(non_cdr_devs),
+                            "devs": " ".join(f"{a}/{b}" for a, b in devs)
+                        }])], ignore_index=True)
+                        df.to_csv(outfile, index=False)
+                        if len(non_cdr_devs) > 0:
+                            n_cases += 1
+                            n_total_devs += len(non_cdr_devs)
+                            print(f"\t{strategy} {species} {rep} vs rest: {score} {len(devs)} deviations ({len(non_cdr_devs)} non-CDRs): " + " ".join(f"{a}/{b}" for a,b in devs))
+                        else:
+                            print(f"\t{strategy} {species} {rep} vs rest: {score} 0 deviations")
+                        df.to_csv(outfile, index=False)
                 #f.write(f"{strategy},{n_cases},{n_total_devs}")
                 print(f"{strategy},{n_cases},{n_total_devs}")
     except KeyboardInterrupt:
