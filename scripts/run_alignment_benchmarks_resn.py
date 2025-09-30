@@ -234,8 +234,6 @@ def main():
                         except KeyError:
                             print(f"\tSkipping {rep} for {species} due to missing residues")
                             continue
-                        # print(f"Target array shape", target_array.shape)
-                        # print(f"Reference array shape", ref_array.shape)
 
                         # setup mpnn inputs
                         target_array = jnp.array(target_array[None, :])

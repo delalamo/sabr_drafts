@@ -1,0 +1,76 @@
+strategy,species,pdb,n_devs,n_non_cdr_devs,devs
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,1,0,110/112
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,6hhd_D,0,0,
+ALL,camelid_H,8v5k_F,3,0,30/28 31/29 34/30
+ALL,camelid_H,8v5k_F,3,0,30/28 31/29 34/30
+ALL,camelid_H,8v5k_F,3,0,30/28 31/29 34/30
+ALL,camelid_H,8y4x_B,0,0,
+ALL,camelid_H,8y4x_B,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,2,1,17/15 59/62
+ALL,camelid_H,8afh_N,3,2,17/7 18/8 59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,1,17/14
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,1,17/14
+ALL,camelid_H,8afh_N,1,1,17/14
+ALL,camelid_H,8afh_N,3,2,17/7 18/8 59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,2,1,17/15 59/62
+ALL,camelid_H,8afh_N,2,1,17/15 59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,3,2,17/7 18/8 59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,0,0,
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,8afh_N,1,0,59/62
+ALL,camelid_H,7f5g_B,1,0,59/62
+ALL,camelid_H,7f5g_B,1,0,59/62
+ALL,camelid_H,6uc6_D,0,0,
+ALL,camelid_H,6uc6_D,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
+ALL,camelid_H,7ykd_S,0,0,
